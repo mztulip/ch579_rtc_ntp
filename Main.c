@@ -62,6 +62,24 @@ void httpd_GET_uri_params_parse(const char *uri)
 
 }
 
+void rtc_switch_to_LSE(void)
+{
+    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;		
+	R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
+    //Turn on external oscillator
+    R8_CK32K_CONFIG |= RB_CLK_XT32K_PON;
+    //bias current to 200%
+    R8_XT32K_TUNE|= 0x11;
+    mDelaymS(200);
+    // bias to rated current(100%)
+    R8_XT32K_TUNE= (R8_XT32K_TUNE&(~0x11)) | 0x01;
+    // Switch clock source
+    R8_CK32K_CONFIG|= RB_CLK_OSC32K_XT;
+    R8_SAFE_ACCESS_SIG = 0;
+    //Wait at least half of the 32khz period to complete switching
+    mDelayuS(16);
+}
+
 void rtc_regs_print(void)
 {
     uint16_t rtc_int_tune = RB_INT32K_TUNE;
@@ -106,6 +124,7 @@ int main()
 
     httpd_init();
 
+    rtc_switch_to_LSE();
     rtc_regs_print();
 
     struct Timer0Delay reset_delay;
