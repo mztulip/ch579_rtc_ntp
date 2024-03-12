@@ -62,6 +62,33 @@ void httpd_GET_uri_params_parse(const char *uri)
 
 }
 
+void rtc_regs_print(void)
+{
+    uint16_t rtc_int_tune = RB_INT32K_TUNE;
+    printf("RB_INT32K_TUNE:0x%04x\n", rtc_int_tune);
+
+    uint8_t rtc_external_tune =  R8_XT32K_TUNE;
+    printf("R8_XT32K_TUNE:0x%02x\n", rtc_int_tune);
+
+    uint8_t rtc_config = R8_CK32K_CONFIG;
+    printf("R8_CK32K_CONFIG:0x%02x\n", rtc_config);
+
+    uint16_t rtc_cal_counter = R16_OSC_CAL_CNT;
+    printf("R16_OSC_CAL_CNT:0x%04x\n", rtc_cal_counter);
+
+    uint8_t osc_cal_control = R8_OSC_CAL_CTRL;
+    printf("R8_OSC_CAL_CTRL:0x%02x\n", osc_cal_control);
+
+    uint8_t rtc_control = R8_RTC_FLAG_CTRL;
+    printf("R8_RTC_FLAG_CTRL:0x%02x\n", rtc_control);
+
+    uint8_t rtc_mode_control =  R8_RTC_MODE_CTRL;
+    printf("R8_RTC_MODE_CTRL:0x%02x\n", rtc_mode_control);
+
+    uint32_t rtc_trigger_value = R32_RTC_TRIG;
+    printf("R32_RTC_TRIG:0x%08x\n", rtc_trigger_value);
+}
+
 // Very helpful link https://lwip.fandom.com/wiki/Raw/TCP
 int main()
 { 
@@ -79,7 +106,11 @@ int main()
 
     httpd_init();
 
+    rtc_regs_print();
+
     struct Timer0Delay reset_delay;
+    struct Timer0Delay info_print;
+    timer0_init_wait_10ms(&info_print, 1000);
 
     while(1)
     {
@@ -93,6 +124,13 @@ int main()
         {
             printf("Reseting...\n");
             NVIC_SystemReset();
+        }
+        if( timer0_check_wait(&info_print))
+        {
+            uint16_t rtc_32k_val = R16_RTC_CNT_32K;
+            uint16_t rtc_2s_val = R16_RTC_CNT_2S;
+            uint16_t rtc_day_val = R32_RTC_CNT_DAY;
+            printf("RTC: %d 2s:%d day: %d\n", rtc_32k_val, rtc_2s_val, rtc_day_val);
         }
         lwip_pkt_handle();
         lwip_periodic_handle();
