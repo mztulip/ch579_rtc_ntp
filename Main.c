@@ -8,6 +8,7 @@
 #include "ethernetif.h"
 #include "tcp.h"
 #include "httpd.h"
+#include <time.h>
 
 uint32_t arg = 0;
 static struct tcp_pcb *tcp_pcb_handle = NULL;
@@ -98,10 +99,20 @@ void rtc_set_time(uint8_t hours, uint8_t minutes, uint8_t seconds)
     rtc_set_counter(count);
 }
 
-void rtc_print_time()
+int _gettimeofday(struct timeval *tv, void *tz)
 {
     uint32_t rtc_cnt = R32_RTC_CNT_32K;
     uint32_t seconds = rtc_cnt/32768;
+    tv->tv_sec = seconds;  
+    tv->tv_usec = ((rtc_cnt%32768)*1000)/32768;  // get remaining microseconds
+    return 0; 
+}
+
+void rtc_print_time()
+{
+    // uint32_t rtc_cnt = R32_RTC_CNT_32K;
+    // uint32_t seconds = rtc_cnt/32768;
+    uint32_t seconds = time(NULL);
     uint32_t minutes = seconds/60;
     seconds = seconds - minutes*60;
     uint32_t hours = minutes/60;
@@ -167,7 +178,7 @@ int main()
     rtc_switch_to_LSE();
     // rtc_set_counter(2831155200-10*32768);
     rtc_set_day_counter(10);
-    rtc_set_time(21,17,0);
+    rtc_set_time(21,37,0);
     rtc_regs_print();
 
     struct Timer0Delay reset_delay;
