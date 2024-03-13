@@ -80,6 +80,31 @@ void rtc_switch_to_LSE(void)
     mDelayuS(16);
 }
 
+void rtc_set_counter(uint32_t count)
+{
+    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;		
+	R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
+    R32_RTC_TRIG = count;
+    // Load main counter from R32_RTC_TRIG
+    // 32 bits are loaded, what gives maximum 4294967295 counts of 32768Hz crystal
+    // 4294967296/32768=131072 seconds
+    // 131072 gives about 2184 minutes
+    // 2184/60 gives about 36 hours
+    R8_RTC_MODE_CTRL|= RB_RTC_LOAD_LO;
+    R8_SAFE_ACCESS_SIG = 0;
+}
+
+void rtc_set_day_counter(uint16_t day)
+{
+    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;		
+	R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
+    R32_RTC_TRIG = (uint32_t)day;
+    // Load day counter from R32_RTC_TRIG
+    // Only 14 bits are loaded, what gives maximum 16383 days
+    R8_RTC_MODE_CTRL|= RB_RTC_LOAD_HI;
+    R8_SAFE_ACCESS_SIG = 0;
+}
+
 void rtc_regs_print(void)
 {
     uint16_t rtc_int_tune = RB_INT32K_TUNE;
@@ -125,6 +150,8 @@ int main()
     httpd_init();
 
     rtc_switch_to_LSE();
+    rtc_set_counter(2831155200-10*32768);
+    rtc_set_day_counter(10);
     rtc_regs_print();
 
     struct Timer0Delay reset_delay;
@@ -148,8 +175,9 @@ int main()
         {
             uint16_t rtc_32k_val = R16_RTC_CNT_32K;
             uint16_t rtc_2s_val = R16_RTC_CNT_2S;
+            uint32_t rtc_cnt = R32_RTC_CNT_32K;
             uint16_t rtc_day_val = R32_RTC_CNT_DAY;
-            printf("RTC: %d 2s:%d day: %d\n", rtc_32k_val, rtc_2s_val, rtc_day_val);
+            printf("RTC 32bit:%u CNT: %d 2s:%d day: %d\n", rtc_cnt, rtc_32k_val, rtc_2s_val, rtc_day_val);
         }
         lwip_pkt_handle();
         lwip_periodic_handle();
