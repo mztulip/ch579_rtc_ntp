@@ -64,6 +64,7 @@
 
 #define LWIP_HTTPD_SUPPORT_POST     0
 #define LWIP_HTTPD_POST_MANUAL_WND  0
+#define LWIP_HTTPD_SSI              1
 
 #define   LWIP_DEBUG      1
 #if 1

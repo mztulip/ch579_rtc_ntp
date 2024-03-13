@@ -110,8 +110,6 @@ int _gettimeofday(struct timeval *tv, void *tz)
 
 void rtc_print_time()
 {
-    // uint32_t rtc_cnt = R32_RTC_CNT_32K;
-    // uint32_t seconds = rtc_cnt/32768;
     uint32_t seconds = time(NULL);
     uint32_t minutes = seconds/60;
     seconds = seconds - minutes*60;
@@ -158,6 +156,36 @@ void rtc_regs_print(void)
     printf("R32_RTC_TRIG:0x%08x\n", rtc_trigger_value);
 }
 
+void rtc_counters_print(void)
+{
+    uint16_t rtc_32k_val = R16_RTC_CNT_32K;
+    uint16_t rtc_2s_val = R16_RTC_CNT_2S;
+    uint32_t rtc_cnt = R32_RTC_CNT_32K;
+    uint16_t rtc_day_val = R32_RTC_CNT_DAY;
+    printf("RTC 32bit:%u CNT: %d 2s:%d day: %d\n", rtc_cnt, rtc_32k_val, rtc_2s_val, rtc_day_val);
+}
+
+u16_t ssi_handler(int iIndex, char *pcInsert, int iInsertLen)
+{
+    size_t len=HTTPD_SSI_TAG_UNKNOWN;
+    switch (iIndex) 
+    {
+        case 0: //test tag
+            len = snprintf(pcInsert, iInsertLen, "Hello World!");
+            break;
+        case 1: //time
+            {
+                uint32_t seconds = time(NULL);
+                uint32_t minutes = seconds/60;
+                seconds = seconds - minutes*60;
+                uint32_t hours = minutes/60;
+                minutes -= hours*60;
+                len = snprintf(pcInsert, iInsertLen, "Time: %02d:%02d:%02d\n", hours, minutes, seconds);
+            }
+    }
+    return (u16_t)len;
+}
+
 // Very helpful link https://lwip.fandom.com/wiki/Raw/TCP
 int main()
 { 
@@ -176,14 +204,18 @@ int main()
     httpd_init();
 
     rtc_switch_to_LSE();
-    // rtc_set_counter(2831155200-10*32768);
     rtc_set_day_counter(10);
-    rtc_set_time(21,37,0);
+    rtc_set_time(22,43,0);
     rtc_regs_print();
 
     struct Timer0Delay reset_delay;
     struct Timer0Delay info_print;
     timer0_init_wait_10ms(&info_print, 100);
+    const char * ssi_tags[] = {
+        "test",
+        "time"
+    };
+    http_set_ssi_handler(ssi_handler, ssi_tags, LWIP_ARRAYSIZE(ssi_tags));
 
     while(1)
     {
@@ -200,11 +232,6 @@ int main()
         }
         if( timer0_check_wait(&info_print))
         {
-            uint16_t rtc_32k_val = R16_RTC_CNT_32K;
-            uint16_t rtc_2s_val = R16_RTC_CNT_2S;
-            uint32_t rtc_cnt = R32_RTC_CNT_32K;
-            uint16_t rtc_day_val = R32_RTC_CNT_DAY;
-            printf("RTC 32bit:%u CNT: %d 2s:%d day: %d\n", rtc_cnt, rtc_32k_val, rtc_2s_val, rtc_day_val);
             rtc_print_time();
         }
         lwip_pkt_handle();
