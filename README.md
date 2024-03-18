@@ -1,7 +1,7 @@
 # ch579m_rtc_ntp
 
-Project idea is to use RTC(real time clock) and synchronise time using NTP protocol.
-Time should be printed over serial and through web browser with update over NTP button.
+Project idea is to use RTC(real time clock) and synchronise time using SNTP protocol.
+Time should be printed over serial and through web browser, rtc time can be updated with update button.
 
 I do not use any tools for compilation.
 Sources are compiled with simple bash script.

@@ -165,6 +165,34 @@ void rtc_counters_print(void)
     printf("RTC 32bit:%u CNT: %d 2s:%d day: %d\n", rtc_cnt, rtc_32k_val, rtc_2s_val, rtc_day_val);
 }
 
+void rtc_setup_timing_mode(void)
+{
+    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;		
+	R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
+    //0x03=>1S every 1 second
+    //0x04=>2S timing cycle about 8 seconds
+    R8_RTC_MODE_CTRL|=RB_RTC_TMR_EN | 0x05; 
+    R8_SAFE_ACCESS_SIG = 0;
+    NVIC_EnableIRQ(RTC_IRQn); 
+}
+
+void RTC_IRQHandler(void)
+{
+    uint8_t status = R8_RTC_FLAG_CTRL;
+    printf("R8_RTC_FLAG_CTRL: %x\n", status);
+    if(status&RB_RTC_TMR_FLAG)
+    {
+        R8_RTC_FLAG_CTRL|=RB_RTC_TMR_CLR;
+        printf("RTC timing\n");
+    }
+
+    if(status&RB_RTC_TRIG_FLAG)
+    {
+        R8_RTC_FLAG_CTRL|=RB_RTC_TRIG_CLR;
+        printf("RTC trigger\n");
+    }
+}
+
 u16_t ssi_handler(int iIndex, char *pcInsert, int iInsertLen)
 {
     size_t len=HTTPD_SSI_TAG_UNKNOWN;
@@ -206,6 +234,7 @@ int main()
     rtc_switch_to_LSE();
     rtc_set_day_counter(10);
     rtc_set_time(22,43,0);
+    rtc_setup_timing_mode();
     rtc_regs_print();
 
     struct Timer0Delay reset_delay;
