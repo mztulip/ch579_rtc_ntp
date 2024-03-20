@@ -251,6 +251,34 @@ u16_t ssi_handler(int iIndex, char *pcInsert, int iInsertLen)
     return (u16_t)len;
 }
 
+err_t httpd_post_begin(void *connection, const char *uri, const char *http_request,
+                       u16_t http_request_len, int content_len, char *response_uri,
+                       u16_t response_uri_len, u8_t *post_auto_wnd)
+{
+    printf("Postbegin\n");
+    return ERR_OK;
+}
+
+err_t httpd_post_receive_data(void *connection, struct pbuf *p)
+{
+    printf("Post payload: %.*s\n", p->len, (char*)p->payload);
+	pbuf_free(p);
+    return ERR_OK;
+}
+
+void httpd_post_finished(void *connection, char *response_uri, u16_t response_uri_len)
+{
+    const char *resp_uri = "/index.shtml";
+    int len = strlen(resp_uri);
+    if(len >= response_uri_len)
+    {
+        printf("\033[31mUri response buffer to small\033[0m\n");
+        return;
+    }
+    strcpy(response_uri, resp_uri);
+    printf("httpd_post_finished\n");
+}
+
 // Very helpful link https://lwip.fandom.com/wiki/Raw/TCP
 int main()
 { 
