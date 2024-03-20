@@ -9,6 +9,7 @@
 #include "tcp.h"
 #include "httpd.h"
 #include <time.h>
+#include <string.h>
 
 uint32_t arg = 0;
 static struct tcp_pcb *tcp_pcb_handle = NULL;
@@ -37,6 +38,54 @@ void led_off(void)
     GPIOB_ResetBits( GPIO_Pin_0 );
 }
 
+void http_parse_key_value(const char *params)
+{
+    static char key_buffer[20];
+    static char value_buffer[20];
+    char* value_pos = strchr(params, '=');
+    if(value_pos == NULL)
+    {
+        printf("\033[31mchar '=' not found in params\033[0m\n");
+        return;
+    }
+
+    int key_strlen = value_pos- params;
+    if(key_strlen >= 19)
+    {
+        printf("\033[31mParameter too long ignoring\033[0m\n");
+        return;
+    }
+    strncpy(key_buffer, params, key_strlen);
+    printf("param key: %s\n", key_buffer);
+
+    int value_strlen = strlen(value_pos+1);
+    if(value_strlen >= 19 || value_strlen == 0)
+    {
+        printf("\033[31mParameter value too long or empty ignoring\033[0m\n");
+        return;
+    }
+    strcpy(value_buffer, value_pos+1);
+    printf("param value: %s\n", value_buffer);
+    
+    if(strcmp(key_buffer,"action") == 0)
+    {
+        if(strcmp(value_buffer,"reboot") == 0)
+        {
+            printf("action reboot\n");
+            action_reboot = true;
+        }
+        else if(strcmp(value_buffer,"led_on") == 0)
+        {
+            led_on();
+        }
+        else if(strcmp(value_buffer,"led_off") == 0)
+        {
+            led_off();
+        }
+    }
+
+}
+
 void httpd_GET_uri_params_parse(const char *uri)
 {
     printf("http_get_uri_params_parse uri: %s\n", uri);
@@ -46,21 +95,9 @@ void httpd_GET_uri_params_parse(const char *uri)
         return;
     }
     char *params = &params_char_pos[1];
-    printf("got parameters:%s", params);
-    if(strcmp(params,"action=reboot") == 0)
-    {
-        printf("action reboot\n");
-        action_reboot = true;
-    }
-    else if(strcmp(params,"action=led_on") == 0)
-    {
-        led_on();
-    }
-    else if(strcmp(params,"action=led_off") == 0)
-    {
-        led_off();
-    }
+    printf("got parameters:%s\n", params);
 
+    http_parse_key_value(params);
 }
 
 void rtc_switch_to_LSE(void)
