@@ -38,7 +38,7 @@ void led_off(void)
     GPIOB_ResetBits( GPIO_Pin_0 );
 }
 
-void http_parse_key_value(const char *params)
+void http_parse_uri_key_value(const char *params)
 {
     static char key_buffer[20];
     static char value_buffer[20];
@@ -97,7 +97,7 @@ void httpd_GET_uri_params_parse(const char *uri)
     char *params = &params_char_pos[1];
     printf("got parameters:%s\n", params);
 
-    http_parse_key_value(params);
+    http_parse_uri_key_value(params);
 }
 
 void rtc_switch_to_LSE(void)
