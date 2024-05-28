@@ -63,7 +63,7 @@ void eth_leds_handle(void)
 	if(amber_led_triggered == true)
 	{
 		eth_amber_led_on();
-		timer0_init_wait_10ms(&amber_led_timer, 20);
+		timer0_init_wait_10ms(&amber_led_timer, 2);
 		amber_led_triggered = false;
 	}
 
