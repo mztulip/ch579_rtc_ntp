@@ -244,7 +244,8 @@ int main()
         }
         lwip_pkt_handle();
         lwip_periodic_handle();
-        sys_check_timeouts();	
+        sys_check_timeouts();
+        eth_leds_handle();
     }
 }
 

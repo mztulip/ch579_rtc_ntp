@@ -180,7 +180,7 @@ static struct pbuf *low_level_input(struct netif *netif)
 		}
 		else
 		{
-			eth_amber_led_off();
+			eth_amber_led_trigger();
 		}
 		led_count++;
 		if(led_count == 10)

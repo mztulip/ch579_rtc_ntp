@@ -28,6 +28,8 @@ ip4_addr_t ipaddr;
 ip4_addr_t netmask; 			
 ip4_addr_t gw;
 
+bool amber_led_triggered = false;
+
 void eth_green_led_on(void)
 {
 	GPIOB_ResetBits(GPIO_Pin_4);
@@ -43,9 +45,33 @@ void eth_amber_led_on(void)
 	GPIOB_ResetBits(GPIO_Pin_7);
 }
 
+void eth_amber_led_trigger(void)
+{
+	amber_led_triggered = true;
+}
+
+
 void eth_amber_led_off(void)
 {
 	GPIOB_SetBits(GPIO_Pin_7);
+}
+
+ struct Timer0Delay amber_led_timer;
+
+void eth_leds_handle(void)
+{
+	if(amber_led_triggered == true)
+	{
+		eth_amber_led_on();
+		timer0_init_wait_10ms(&amber_led_timer, 20);
+		amber_led_triggered = false;
+	}
+
+	if( timer0_check_wait(&amber_led_timer))
+	{
+		timer0_init_empty(&amber_led_timer);
+		eth_amber_led_off();
+	}
 }
 
 static void  IP4_ADDR_X(struct ip4_addr *ipaddr,u32_t ipaddrx)
@@ -60,6 +86,7 @@ void eth_status_led_init(void)
 
 	eth_green_led_off();
 	eth_green_led_off();
+	timer0_init_empty(&amber_led_timer);
 }
 
 void netif_status_callback(struct netif *netif)
