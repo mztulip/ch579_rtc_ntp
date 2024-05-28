@@ -164,7 +164,7 @@ static void udp_received(void *arg, struct udp_pcb *pcb, struct pbuf *p, const i
         return;
     printf("\n\rgot udp len: %d\n", p->len);
     uint8_t *data = (uint8_t*)p->payload;
-    for(int x; x < p->len; x++)
+    for(int x=0; x < p->len; x++)
     {
         printf("0x%x ", data[x]);
     }
@@ -213,7 +213,7 @@ int main()
     result = udp_bind(udp_pcb_receive, IP_ADDR_ANY, 123);
 
     ip_addr_t sntp_server_ip;
-    IP4_ADDR(&sntp_server_ip, 192,168,2,101);
+    IP4_ADDR(&sntp_server_ip, 91, 227, 212, 78);
     udp_recv(udp_pcb , udp_received, NULL);
 
     unsigned char sntp_msg[48]={0x1b,0,0,0,0,0,0,0,0};
