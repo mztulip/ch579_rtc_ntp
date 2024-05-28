@@ -288,17 +288,17 @@ void ETH_IRQHandler(void)
 	
 	if(eth_irq_flag&(RB_ETH_EIR_TXERIF|RB_ETH_EIR_RXERIF)) 
 	{
-		eth_irq_status = R8_ETH_ESTAT;
-		ETH_IRQ_ERR_Deal(eth_irq_status);  
+		eth_irq_status = R8_ETH_ESTAT; 
 		R8_ETH_EIR = (RB_ETH_EIR_TXERIF|RB_ETH_EIR_RXERIF);
 		if(eth_irq_flag&RB_ETH_EIR_TXERIF)
 		{
-			printf("\033[31mPhy transmission error.\033[0m\n\r");
+			printf("\033[31mPhy transmission error:\033[0m\n\r");
 		}
 		if(eth_irq_flag&RB_ETH_EIR_RXERIF)
 		{
-			printf("\033[31mPhy reception error.\033[0m\n\r");
+			printf("\033[31mPhy reception error:\033[0m\n\r");
 		}
+		ETH_IRQ_ERR_Deal(eth_irq_status); 
 	}
 	
 }

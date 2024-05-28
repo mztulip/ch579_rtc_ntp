@@ -40,12 +40,12 @@ void eth_green_led_off(void)
 
 void eth_amber_led_on(void)
 {
-	GPIOB_SetBits(GPIO_Pin_7);
+	GPIOB_ResetBits(GPIO_Pin_7);
 }
 
 void eth_amber_led_off(void)
 {
-	GPIOB_SetBits(GPIO_Pin_4);
+	GPIOB_SetBits(GPIO_Pin_7);
 }
 
 static void  IP4_ADDR_X(struct ip4_addr *ipaddr,u32_t ipaddrx)
@@ -155,6 +155,7 @@ void lwip_periodic_handle(void)
 		else
 		{
 			eth_green_led_off();
+			eth_amber_led_off();
 			printf("\033[31mlink disconnected\033[0m\r\n");
 			netif_set_link_down(&lwip_netif);
 		}
