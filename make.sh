@@ -216,6 +216,11 @@ file="$TOOLCHAIN_GCC lwip-2.1.2/src/apps/http/$filename.c $INLCUDES -o build/$fi
 
 $file
 
+filename=rtc
+file="$TOOLCHAIN_GCC $filename.c $INLCUDES -o build/$filename.o $GCC_FLAGS"
+
+$file
+
 LINKER_FLAGS="-nostartfiles -Wl,--gc-sections -mcpu=cortex-m0 --specs=nano.specs"
 linker="$TOOLCHAIN_GCC build/*.o -T$LINKER_SCRIPT -o output.elf  -Xlinker -Map=output.map $LINKER_FLAGS"
 $linker
