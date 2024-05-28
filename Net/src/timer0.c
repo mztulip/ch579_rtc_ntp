@@ -30,10 +30,17 @@ bool timer0_init_wait_10ms(struct Timer0Delay *delay, uint32_t delay10ms)
 {
   delay->delay_10ms = delay10ms;
   delay->started = time_10ms;
+  delay->initialised = true;
+}
+
+void timer0_init_empty(struct Timer0Delay *delay)
+{
+  delay->initialised = false;
 }
 
 bool timer0_check_wait(struct Timer0Delay *delay)
 {
+  if(delay->initialised == false) {return false;}
   uint32_t finish_time = delay->started + delay->delay_10ms;
   if(time_10ms >= finish_time)
   {

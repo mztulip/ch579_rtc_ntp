@@ -5,6 +5,7 @@
 #include <stdbool.h>
 
 struct Timer0Delay {
+    bool initialised;
     uint32_t started;
     uint32_t delay_10ms;
 };
@@ -12,6 +13,7 @@ struct Timer0Delay {
 void InitTimer0(void);
 uint32_t get_time_10ms(void);
 bool timer0_init_wait_10ms(struct Timer0Delay *delay, uint32_t delay10ms);
+void timer0_init_empty(struct Timer0Delay *delay);
 bool timer0_check_wait(struct Timer0Delay *delay);
 
 

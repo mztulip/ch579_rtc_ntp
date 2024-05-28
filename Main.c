@@ -197,6 +197,7 @@ int main()
 
     struct Timer0Delay reset_delay;
     struct Timer0Delay info_print;
+    timer0_init_empty(&reset_delay);
     timer0_init_wait_10ms(&info_print, 100);
     const char * ssi_tags[] = {
         "test",
@@ -205,15 +206,18 @@ int main()
     http_set_ssi_handler(ssi_handler, ssi_tags, LWIP_ARRAYSIZE(ssi_tags));
 
     struct udp_pcb *udp_pcb;
+    struct udp_pcb *udp_pcb_receive;
     err_t result;
     udp_pcb = udp_new();
-    result = udp_bind(udp_pcb, IP_ADDR_ANY, 123);
+    udp_pcb_receive = udp_new();
+    result = udp_bind(udp_pcb_receive, IP_ADDR_ANY, 123);
 
     ip_addr_t sntp_server_ip;
     IP4_ADDR(&sntp_server_ip, 192,168,2,101);
     udp_recv(udp_pcb , udp_received, NULL);
 
-    
+    unsigned char sntp_msg[48]={0x1b,0,0,0,0,0,0,0,0};
+    struct pbuf *send_buffer = pbuf_alloc_reference(sntp_msg, sizeof(sntp_msg), PBUF_ROM);
 
     while(1)
     {
@@ -226,7 +230,6 @@ int main()
         if (action_sntp_update == true)
         {
             printf("SNTP sending time request\n");
-            struct pbuf *send_buffer = pbuf_alloc(PBUF_TRANSPORT, 1024, PBUF_RAM);
             err_t status = udp_sendto( udp_pcb,send_buffer ,&sntp_server_ip, 123);
             action_sntp_update = false;
         }
