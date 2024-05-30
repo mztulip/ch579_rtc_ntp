@@ -168,6 +168,10 @@ static void udp_received(void *arg, struct udp_pcb *pcb, struct pbuf *p, const i
     {
         printf("0x%x ", data[x]);
     }
+
+    uint32_t sntp_time;
+    memcpy((uint8_t *)&sntp_time, (uint8_t *)&data[4*10], 4);
+    printf("\nNTP time received: %d", sntp_time);
     
     pbuf_free(p);
 }

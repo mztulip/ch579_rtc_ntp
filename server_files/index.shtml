@@ -10,6 +10,9 @@
 		<button name="action" value="reboot">Reboot</button>
 	</form>
 	<form action="/index.shtml" method="get">
+		<button name="action" value="sntp">Get NTP time</button>
+	</form>	
+	<form action="/index.shtml" method="get">
 		<button name="action" value="led_on">Led on</button>
 	</form>	
 	<form action="/index.shtml" method="get">
