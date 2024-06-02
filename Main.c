@@ -176,9 +176,9 @@ static void udp_received(void *arg, struct udp_pcb *pcb, struct pbuf *p, const i
     printf("NTP raw time received: 0x%x\n", sntp_time);
     uint32_t unix_time_utc = sntp_time-2208988800U;
     printf("Unix time: %u\n", (uint32_t)unix_time_utc);
-    
-    
-    
+    time_t unix_time = unix_time_utc;
+    printf("Time from NTP server: %s",ctime(&unix_time));
+    // ctime_r
     pbuf_free(p);
 }
 

@@ -29,7 +29,7 @@ _sbrk (int nbytes)
 {
   static uint8_t heap[2048];
   static uint16_t last = 0;
-  if(last+nbytes < 512)
+  if(last+nbytes < 1024)
   {
     void* pointer = &heap[last];
     last+=nbytes;
