@@ -169,9 +169,15 @@ static void udp_received(void *arg, struct udp_pcb *pcb, struct pbuf *p, const i
         printf("0x%x ", data[x]);
     }
 
-    uint32_t sntp_time;
-    memcpy((uint8_t *)&sntp_time, (uint8_t *)&data[4*10], 4);
-    printf("\nNTP time received: %d", sntp_time);
+    uint32_t sntp_time_network;
+    memcpy((uint8_t *)&sntp_time_network, (uint8_t *)&data[4*10], 4);
+    uint32_t sntp_time = lwip_ntohl(sntp_time_network);
+    printf("NTP raw time received: %u\n", sntp_time);
+    printf("NTP raw time received: 0x%x\n", sntp_time);
+    uint32_t unix_time_utc = sntp_time-2208988800U;
+    printf("Unix time: %u\n", (uint32_t)unix_time_utc);
+    
+    
     
     pbuf_free(p);
 }
